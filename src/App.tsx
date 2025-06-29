@@ -13,8 +13,8 @@ import type { Node } from "@xyflow/react";
 import MermaidNode from "./components/MermaidNode";
 
 const initialNodes : Node[] = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" }, type : 'mermaidnode' },
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" }, type : 'mermaidnode',},
+  { id: "1", position: { x: 0, y: 0 }, data: { label: "1", shape: "rect" }, type : 'mermaidnode' },
+  { id: "2", position: { x: 0, y: 100 }, data: { label: "2", shape: "rect" }, type : 'mermaidnode',},
 ];
 const initialEdges =   [{ id: "e1-2", source: "1", target: "2" }];
 
@@ -33,11 +33,12 @@ export default function App() {
     [setEdges]
   );
   
-  GenerateMermaidCode(nodes)
 
 
 
   return (
+
+    <>    
     <div style={{ width: "100vh", height: "100vh" }}>
       <ReactFlow
         nodes={nodes}
@@ -49,8 +50,9 @@ export default function App() {
         colorMode="dark"
       >
         <Controls />
-        <button id="generate-mermaid-code" onClick={() => GenerateMermaidCode(nodes)} title="Convert to Mermaid code">Convert</button>
       </ReactFlow>
-    </div>
+    </div>      
+    <button id="generate-mermaid-code" onClick={() => GenerateMermaidCode(nodes,edges)} title="Convert to Mermaid code" className="fixed bottom-5 left-14">Convert</button>
+    </>
   );
 }
