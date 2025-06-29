@@ -4,34 +4,55 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  Controls,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
+import GenerateMermaidCode from "./components/GenerateMermaidCode";
+import type { Node } from "@xyflow/react";
+import MermaidNode from "./components/MermaidNode";
 
-const initialNodes = [
-  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" } },
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" } },
+const initialNodes : Node[] = [
+  { id: "1", position: { x: 0, y: 0 }, data: { label: "1" }, type : 'mermaidnode' },
+  { id: "2", position: { x: 0, y: 100 }, data: { label: "2" }, type : 'mermaidnode',},
 ];
 const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
+
+const nodeTypes = {
+  mermaidnode : MermaidNode
+}
+
+interface CustomNodeData {
+  shape:string;
+  label:string;
+}
 
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params : any) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+  
+  GenerateMermaidCode(nodes)
+
+
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100vh", height: "100vh" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-      />
+        nodeTypes={nodeTypes}
+        colorMode="dark"
+      >
+        <Controls />
+      </ReactFlow>
     </div>
   );
 }
