@@ -39,7 +39,7 @@ export default function App() {
   return (
 
     <>    
-    <div style={{ width: "100vh", height: "100vh" }}>
+    <div style={{ width: "100vw", height: "100vh" }} className="w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -19,7 +19,7 @@ const MermaidNode = (props : NodeProps<MermaidType>) => {
 
     return(
         <>
-        <textarea onChange={handleTextChange} placeholder={props.data.label} className="flex resize-none overflow-hidden text-center w-full h-full border-2 rounded-xl border-sky-600 focus:outline-0 focus:border-amber-400 caret-amber-400"></textarea>
+        <textarea onChange={handleTextChange} placeholder={props.data.label} className="flex resize-none overflow-hidden text-center w-full h-full border-2 rounded-xl bg-gray-600 text-gray-200 border-sky-600 focus:outline-0 focus:border-orange-500 focus:caret-amber-400"></textarea>
         <Handle type="source" position= {Position.Bottom} />
         <Handle type="target" position= {Position.Top} />
         </>
