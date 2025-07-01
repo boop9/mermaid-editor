@@ -23,7 +23,7 @@ const MermaidComponent = ({ source, id }: { source: string; id: string }) => {
 
     // Clean up mermaid instance when unmounting; doing nothing at the momemt
     return () => {};
-  }, [source]);
+  }, [source, id]);
 
   return <div id={id} ref={mermaidRef}></div>;
 };
