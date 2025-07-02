@@ -1,5 +1,5 @@
 import type { Node } from "@xyflow/react";
-import type { Edge } from "../types/Edge";
+import type { Edge } from "../types/MermaidEdge";
 
 const GenerateMermaidCode = (
   nodes: Node[],

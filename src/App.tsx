@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -15,11 +15,13 @@ import GenerateMermaidCode from "./components/GenerateMermaidCode";
 import type { Node, NodeOrigin, OnEdgesChange } from "@xyflow/react";
 import MermaidNode from "./components/MermaidNode";
 import MermaidComponent from "./components/MermaidComponent";
-import type { Edge } from "./types/Edge";
+import type { MermaidEdge } from "./types/MermaidEdge";
 import UpdateNodeData from "./components/UpdateNodeData";
 import type { MermaidType } from "./types/MermaidType";
 import Cookies from "universal-cookie";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import MermaidViewControls from "./components/MermaidViewControls";
+import CustomEdge from "./components/CustomEdge";
 
 const cookies = new Cookies();
 
@@ -28,7 +30,7 @@ const initialNodes: MermaidType[] = [
     id: "1",
     position: { x: 0, y: 0 },
     data: {
-      label: "1",
+      label: "",
       shape: "rect",
       sourceConnections: 1,
       targetConnections: 0,
@@ -39,7 +41,7 @@ const initialNodes: MermaidType[] = [
     id: "2",
     position: { x: 0, y: 100 },
     data: {
-      label: "2",
+      label: "",
       shape: "rect",
       targetConnections: 1,
       sourceConnections: 0,
@@ -48,10 +50,16 @@ const initialNodes: MermaidType[] = [
   },
 ];
 
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
+const initialEdges: MermaidEdge[] = [
+  { id: "e1-2", source: "1", target: "2", type: "mermaid-edge" },
+];
 
 const nodeTypes = {
   mermaidnode: MermaidNode,
+};
+
+const edgeTypes = {
+  "mermaid-edge": CustomEdge,
 };
 
 const nodeOrigin: NodeOrigin = [0.5, 0];
@@ -60,7 +68,7 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<MermaidType>(
     cookies.get("nodes") || initialNodes
   );
-  const [edges, setEdges] = useEdgesState<Edge>(
+  const [edges, setEdges] = useEdgesState<MermaidEdge>(
     cookies.get("edges") || initialEdges
   );
   const { screenToFlowPosition } = useReactFlow();
@@ -69,7 +77,10 @@ function Flow() {
   const { getNode } = useReactFlow();
 
   const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    (connection: any) => {
+      const edge = { ...connection, type: "custom-edge" };
+      setEdges((eds) => addEdge(edge, eds));
+    },
     [setEdges]
   );
 
@@ -78,7 +89,7 @@ function Flow() {
     cookies.set("edges", edges);
   }, [nodes, edges]);
 
-  const onEdgesChange: OnEdgesChange<Edge> = useCallback(
+  const onEdgesChange: OnEdgesChange<MermaidEdge> = useCallback(
     (changes) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
       changes.forEach((change) => {
@@ -100,7 +111,7 @@ function Flow() {
         }
       });
     },
-    [setEdges]
+    [setEdges, getNode, setNodes]
   );
 
   const idRef = useRef<number>(
@@ -130,12 +141,12 @@ function Flow() {
             x: clientX,
             y: clientY,
           }),
-          data: { label: `${id}`, shape: `rect` },
+          data: { label: ``, shape: `rect` },
           origin: [0.5, 0.0],
           type: "mermaidnode",
         };
 
-        const newEdge: Edge = {
+        const newEdge: MermaidEdge = {
           id: `e${connectionState.fromNode.id}-${id}`,
           source: isFromSource ? connectionState.fromHandle.nodeId : newNode.id,
           target: isFromSource ? newNode.id : connectionState.fromHandle.nodeId,
@@ -145,13 +156,13 @@ function Flow() {
         addEdges(newEdge);
       }
     },
-    [screenToFlowPosition]
+    [screenToFlowPosition, addEdges, addNodes]
   );
 
   return (
     <>
-      <div className="flex resize-none">
-        <div style={{ width: "100vw", height: "100vh" }} className="w-full">
+      <div className="flex resize-none w-screen h-screen">
+        <div className="flex-1 w-full h-full">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -159,6 +170,7 @@ function Flow() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             colorMode="dark"
             nodeOrigin={nodeOrigin}
             onConnectEnd={onConnectEnd}
@@ -186,30 +198,34 @@ function Flow() {
         >
           Clear
         </button>
-        <div className="flex flex-col w-1/2 resize-none">
-          <div className="mermaid-viewport flex justify-center">
+        <div className="flex flex-col flex-1 w-1/2 resize-none border-l-2 border-gray-600">
+          <div className="mermaid-viewport relative flex justify-center border-b-1 border-gray-600">
             <TransformWrapper
               initialScale={1}
               limitToBounds={false}
-              centerOnInit
               initialPositionX={200}
               initialPositionY={100}
             >
-              <TransformComponent
-                wrapperClass="bg-gray-700 w-full h-full"
-                wrapperStyle={{ width: "100%" }}
-              >
-                <div className="h-150 flex justify-center">
-                  <MermaidComponent
-                    source={GenerateMermaidCode(nodes, edges, ";")}
-                    id="1"
-                  ></MermaidComponent>
-                </div>
-              </TransformComponent>
+              {() => (
+                <>
+                  <MermaidViewControls />
+                  <TransformComponent
+                    wrapperClass="bg-gray-700 w-full h-full"
+                    wrapperStyle={{ width: "100%" }}
+                  >
+                    <div className="h-150 flex justify-center">
+                      <MermaidComponent
+                        source={GenerateMermaidCode(nodes, edges, ";")}
+                        id="1"
+                      ></MermaidComponent>
+                    </div>
+                  </TransformComponent>
+                </>
+              )}
             </TransformWrapper>
           </div>
 
-          <div className="whitespace-pre-line leading-8 font-mono">
+          <div className="whitespace-pre-line font-mono pl-1 leading-8">
             {GenerateMermaidCode(nodes, edges, "\n")}
           </div>
         </div>
