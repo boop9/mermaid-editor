@@ -22,6 +22,8 @@ import Cookies from "universal-cookie";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import MermaidViewControls from "./components/MermaidViewControls";
 import CustomEdge from "./components/CustomEdge";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const cookies = new Cookies();
 
@@ -225,9 +227,20 @@ function Flow() {
             </TransformWrapper>
           </div>
 
-          <div className="whitespace-pre-line font-mono pl-1 leading-8">
+          <SyntaxHighlighter
+            language="mermaid"
+            style={oneDark}
+            className="mermaid-text-box"
+            showLineNumbers
+            customStyle={{
+              marginTop: 0,
+              paddingTop: 0,
+              height: "100%",
+            }}
+            wrapLines
+          >
             {GenerateMermaidCode(nodes, edges, "\n")}
-          </div>
+          </SyntaxHighlighter>
         </div>
       </div>
     </>
