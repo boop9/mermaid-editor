@@ -16,7 +16,6 @@ import type { Node, NodeOrigin, OnEdgesChange } from "@xyflow/react";
 import MermaidNode from "./components/MermaidNode";
 import MermaidComponent from "./components/MermaidComponent";
 import type { MermaidEdge } from "./types/MermaidEdge";
-import UpdateNodeData from "./components/UpdateNodeData";
 import type { MermaidType } from "./types/MermaidType";
 import Cookies from "universal-cookie";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
@@ -30,7 +29,7 @@ const cookies = new Cookies();
 const initialNodes: MermaidType[] = [
   {
     id: "1",
-    position: { x: 0, y: 0 },
+    position: { x: 300, y: 300 },
     data: {
       label: "",
       shape: "rect",
@@ -41,7 +40,7 @@ const initialNodes: MermaidType[] = [
   },
   {
     id: "2",
-    position: { x: 0, y: 100 },
+    position: { x: 300, y: 400 },
     data: {
       label: "",
       shape: "rect",
@@ -53,7 +52,7 @@ const initialNodes: MermaidType[] = [
 ];
 
 const initialEdges: MermaidEdge[] = [
-  { id: "e1-2", source: "1", target: "2", type: "mermaid-edge" },
+  { id: "e1-2", source: "1", target: "2", type: "mermaidedge", data: {label: "", linetype: ""} },
 ];
 
 const nodeTypes = {
@@ -61,7 +60,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  "mermaid-edge": CustomEdge,
+  mermaidedge: CustomEdge
 };
 
 const nodeOrigin: NodeOrigin = [0.5, 0];
@@ -77,6 +76,7 @@ function Flow() {
   const { addNodes } = useReactFlow();
   const { addEdges } = useReactFlow();
   const { getNode } = useReactFlow();
+  const { updateNodeData } = useReactFlow();
 
   const onConnect = useCallback(
     (connection: any) => {
@@ -89,6 +89,7 @@ function Flow() {
   useEffect(() => {
     cookies.set("nodes", nodes);
     cookies.set("edges", edges);
+    console.log("saving cookies")
   }, [nodes, edges]);
 
   const onEdgesChange: OnEdgesChange<MermaidEdge> = useCallback(
@@ -100,12 +101,12 @@ function Flow() {
           const targetNode = getNode(change.item.target) as MermaidType;
           const sourceId = change.item.source;
           const targetId = change.item.target;
-          UpdateNodeData(setNodes, sourceId, {
+          updateNodeData(sourceId, {
             data: {
               sourceConnections: (sourceNode?.data.sourceConnections ?? 0) + 1,
             },
           });
-          UpdateNodeData(setNodes, targetId, {
+          updateNodeData( targetId, {
             data: {
               sourceConnections: (targetNode?.data.targetConnections ?? 0) + 1,
             },
@@ -152,6 +153,8 @@ function Flow() {
           id: `e${connectionState.fromNode.id}-${id}`,
           source: isFromSource ? connectionState.fromHandle.nodeId : newNode.id,
           target: isFromSource ? newNode.id : connectionState.fromHandle.nodeId,
+          type: "mermaidedge",
+          data: {label : "", linetype: "-"}
         };
 
         addNodes(newNode);
@@ -200,11 +203,11 @@ function Flow() {
         >
           Clear
         </button>
-        <div className="flex flex-col flex-1 w-1/2 resize-none border-l-2 border-gray-600">
+        <div className="flex flex-col flex-1 w-1/2 max-w-100 resize-none border-l-2 border-gray-600">
           <div className="mermaid-viewport relative flex justify-center border-b-1 border-gray-600">
             <TransformWrapper
               initialScale={1}
-              limitToBounds={false}
+              limitToBounds={true}
               initialPositionX={200}
               initialPositionY={100}
             >
@@ -226,21 +229,24 @@ function Flow() {
               )}
             </TransformWrapper>
           </div>
-
-          <SyntaxHighlighter
-            language="mermaid"
-            style={oneDark}
-            className="mermaid-text-box"
-            showLineNumbers
-            customStyle={{
-              marginTop: 0,
-              paddingTop: 0,
-              height: "100%",
-            }}
-            wrapLines
-          >
-            {GenerateMermaidCode(nodes, edges, "\n")}
-          </SyntaxHighlighter>
+          
+          <div className="flex-1">
+            <SyntaxHighlighter
+              language="mermaid"
+              style={oneDark}
+              className="mermaid-text-box"
+              showLineNumbers
+              customStyle={{
+                marginTop: 0,
+                paddingTop: 0,
+                height: "100%",
+              }}
+              wrapLines
+            >
+              {GenerateMermaidCode(nodes, edges, "\n")}
+            </SyntaxHighlighter>            
+          </div>
+ 
         </div>
       </div>
     </>
