@@ -3,6 +3,11 @@ import type { MermaidEdge } from "../types/MermaidEdge";
 
 const GenerateMermaidCode = (
   nodes: Node[],
+<<<<<<< HEAD
+  edges: MermaidEdge[],
+=======
+  edges:  MermaidEdge[],
+>>>>>>> 06e13dac106bf2f1c01f4d3be6f171bb062bfdc6
   edges: MermaidEdge[],
   linebreak: string
 ) => {

@@ -12,7 +12,19 @@ const DEFAULT_HANDLE_STYLE = {
 
 const MermaidNode = (props: NodeProps<MermaidType>) => {
   const { updateNode } = useReactFlow();
+  const [sourceValue, setSourceValue] = useState("");
   console.log(props.data.label);
+  const value = Math.floor(props.data.label.length / 4);
+
+  useEffect(() => {
+    const emsp = "\u2003";
+
+    setSourceValue(
+      `flowchart TD \n A@{ shape: ${props.data.shape}, label: "${
+        emsp.repeat(value) || emsp
+      }" }`
+    );
+  }, [value, props.data.shape]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newLabel = e.target.value;
@@ -43,6 +55,7 @@ const MermaidNode = (props: NodeProps<MermaidType>) => {
         style={{ ...DEFAULT_HANDLE_STYLE }}
       />
     </>
+>>>>>>> 06e13dac106bf2f1c01f4d3be6f171bb062bfdc6
   );
 };
 
