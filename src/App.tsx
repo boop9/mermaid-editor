@@ -18,8 +18,11 @@ import MermaidComponent from "./components/MermaidComponent";
 import type { MermaidEdge } from "./types/MermaidEdge";
 import type { MermaidType } from "./types/MermaidType";
 import Cookies from "universal-cookie";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import MermaidViewControls from "./components/MermaidViewControls";
+import {
+  TransformComponent,
+  TransformWrapper,
+  useControls,
+} from "react-zoom-pan-pinch";
 import CustomEdge from "./components/CustomEdge";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -52,7 +55,7 @@ const initialNodes: MermaidType[] = [
 ];
 
 const initialEdges: MermaidEdge[] = [
-  { id: "e1-2", source: "1", target: "2", type: "mermaidedge", data: {label: "", linetype: ""} },
+  { id: "e1-2", source: "1", target: "2", type: "mermaidedge" },
 ];
 
 const nodeTypes = {
@@ -60,7 +63,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  mermaidedge: CustomEdge
+  mermaidedge: CustomEdge,
 };
 
 const nodeOrigin: NodeOrigin = [0.5, 0];
@@ -89,7 +92,7 @@ function Flow() {
   useEffect(() => {
     cookies.set("nodes", nodes);
     cookies.set("edges", edges);
-    console.log("saving cookies")
+    console.log("saving cookies");
   }, [nodes, edges]);
 
   const onEdgesChange: OnEdgesChange<MermaidEdge> = useCallback(
@@ -106,7 +109,7 @@ function Flow() {
               sourceConnections: (sourceNode?.data.sourceConnections ?? 0) + 1,
             },
           });
-          updateNodeData( targetId, {
+          updateNodeData(targetId, {
             data: {
               sourceConnections: (targetNode?.data.targetConnections ?? 0) + 1,
             },
@@ -154,7 +157,6 @@ function Flow() {
           source: isFromSource ? connectionState.fromHandle.nodeId : newNode.id,
           target: isFromSource ? newNode.id : connectionState.fromHandle.nodeId,
           type: "mermaidedge",
-          data: {label : "", linetype: "-"}
         };
 
         addNodes(newNode);
@@ -163,6 +165,18 @@ function Flow() {
     },
     [screenToFlowPosition, addEdges, addNodes]
   );
+
+  const TransformControls = () => {
+    const { zoomIn, zoomOut, resetTransform } = useControls();
+
+    return (
+      <div className="tools absolute left-0 bottom-0">
+        <button onClick={() => zoomIn()}>+</button>
+        <button onClick={() => zoomOut()}>-</button>
+        <button onClick={() => resetTransform()}>x</button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -185,21 +199,13 @@ function Flow() {
         </div>
 
         <button
-          id="generate-mermaid-code"
-          onClick={() => GenerateMermaidCode(nodes, edges, "\n")}
-          title="Convert to Mermaid code"
-          className="fixed bottom-5 left-14"
-        >
-          Convert
-        </button>
-        <button
           id="clear-nodes"
           onClick={() => {
             setNodes(initialNodes);
             setEdges(initialEdges);
             idRef.current = 3;
           }}
-          className="fixed bottom-5 left-45"
+          className="fixed bottom-5 left-15"
         >
           Clear
         </button>
@@ -213,23 +219,23 @@ function Flow() {
             >
               {() => (
                 <>
-                  <MermaidViewControls />
                   <TransformComponent
                     wrapperClass="bg-gray-700 w-full h-full"
                     wrapperStyle={{ width: "100%" }}
                   >
-                    <div className="h-150 flex justify-center">
+                    <div className="h-150 flex justify-center relative">
                       <MermaidComponent
                         source={GenerateMermaidCode(nodes, edges, ";")}
                         id="1"
                       ></MermaidComponent>
                     </div>
                   </TransformComponent>
+                  <TransformControls />
                 </>
               )}
             </TransformWrapper>
           </div>
-          
+
           <div className="flex-1">
             <SyntaxHighlighter
               language="mermaid"
@@ -244,9 +250,8 @@ function Flow() {
               wrapLines
             >
               {GenerateMermaidCode(nodes, edges, "\n")}
-            </SyntaxHighlighter>            
+            </SyntaxHighlighter>
           </div>
- 
         </div>
       </div>
     </>

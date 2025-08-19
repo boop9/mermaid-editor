@@ -3,7 +3,7 @@ import type { MermaidEdge } from "../types/MermaidEdge";
 
 const GenerateMermaidCode = (
   nodes: Node[],
-  edges:  MermaidEdge[],
+  edges: MermaidEdge[],
   linebreak: string
 ) => {
   const mermaidText = ["flowchart TD"]; //change to toggleable TD/LR
@@ -14,7 +14,7 @@ const GenerateMermaidCode = (
   });
 
   edges.forEach((item: MermaidEdge) => {
-    mermaidText.push(`${item.source} -${item.label}-> ${item.target}`);
+    mermaidText.push(`${item.source} --> ${item.target}`);
   });
   const mermaidCode = mermaidText.join(linebreak);
   console.log(mermaidCode);
