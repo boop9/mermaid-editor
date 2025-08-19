@@ -143,7 +143,7 @@ function Flow() {
             x: clientX,
             y: clientY,
           }),
-          data: { label: ``, shape: `rect` },
+          data: { label: "", shape: "rect" },
           origin: [0.5, 0.0],
           type: "mermaidnode",
         };

@@ -1,9 +1,9 @@
 import type { Node } from "@xyflow/react";
-import type { Edge } from "../types/MermaidEdge";
+import type { MermaidEdge } from "../types/MermaidEdge";
 
 const GenerateMermaidCode = (
   nodes: Node[],
-  edges: Edge[],
+  edges: MermaidEdge[],
   linebreak: string
 ) => {
   const mermaidText = ["flowchart TD"]; //change to toggleable TD/LR
@@ -13,7 +13,7 @@ const GenerateMermaidCode = (
     );
   });
 
-  edges.forEach((item: Edge) => {
+  edges.forEach((item: MermaidEdge) => {
     mermaidText.push(`${item.source} --> ${item.target}`);
   });
   const mermaidCode = mermaidText.join(linebreak);
